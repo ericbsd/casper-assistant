@@ -1,8 +1,8 @@
 #!/usr/bin/env
 import speech_recognition as sr
+import io
+from subprocess import Popen, PIPE
 from gtts import gTTS
-import os
-from subprocess import Popen
 from getpass import getuser
 
 username = getuser()
@@ -35,10 +35,11 @@ def listen_for_command():
 
 def text_to_speech(text):
     tts = gTTS(text=text, lang='en', slow=False)
-    audio_file = 'temp.mp3'
-    tts.save(audio_file)
-    os.system(f'mpg123 {audio_file} --quiet')
-    os.remove(audio_file)
+    audio_buffer = io.BytesIO()
+    tts.write_to_fp(audio_buffer)
+    audio_buffer.seek(0)
+    proc =Popen(['mpg123', '-o', 'oss:/dev/dsp4', '--quiet', '-'], stdin=PIPE)
+    proc.communicate(audio_buffer.read())
 
 
 def what_to_do():
@@ -52,6 +53,7 @@ def what_to_do():
     answer_list = answer.split()
     if answer_list[0] in ['open', 'Open']:
         text_to_speech(f'Opening {answer_list[1]}')
+        Popen(answer_list[1].lower(), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     elif answer == 'quit':
         text_to_speech('OK I quit')
         exit()
