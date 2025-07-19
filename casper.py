@@ -43,7 +43,7 @@ def text_to_speech(text):
 
 
 def what_to_do():
-    text_to_speech('What you whant to Do')
+    text_to_speech('What you want to do?')
     while True:
         answer = listen_for_command()
         if answer is None:
@@ -54,8 +54,8 @@ def what_to_do():
     if answer_list[0] in ['open', 'Open']:
         text_to_speech(f'Opening {answer_list[1]}')
         Popen(answer_list[1].lower(), shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    elif answer == 'quit':
-        text_to_speech('OK I quit')
+    elif answer.lower() == 'goodbye':
+        text_to_speech('OK goodbye')
         exit()
 
 
